@@ -74,28 +74,35 @@ void inicia(ptnoSet *Area, ptnoArq *Arq, memoria Memo) {
             Memo[i][j] = ' ';
 }
 
+/* Essa função é responsavel por gravar arquivos distribuindo 
+ * entre os espaços vazios da memória */
+
 void gravar(memoria Memo, ptnoSet *Area, ptnoArq *Arq, char nome[13], char texto[TAM_MEMORIA * TAM_GRANULO]) {
     
     ptnoArq auxArq = malloc(sizeof (noArq));
     ptnoSet auxSet = malloc(sizeof (noSet));
-    ptnoSet auxSet2 = malloc(sizeof (noSet));
+    ptnoSet percorre = auxSet;
     
     strcpy(auxArq->nome, nome);
     auxArq->caracteres = strlen(texto);
     auxArq->prox = NULL;
-    auxArq->setores = auxSet2;
+    auxArq->setores = percorre;
     
     int cont1 = 0;
+    int i;
     
+    /*O while verifica se tem espaço disponível na memória ou se 
+     * já escreveu todo o arquivo*/
     while(Area && cont1 < auxArq->caracteres) {
         
+        /*O if adiciona as informações no granulos da memória*/
         if((*Area)->inicio <= (*Area)->fim) {
             
             auxSet->inicio = (*Area)->inicio;
-            auxSet->fim = (*Area)->inicio;
+            auxSet->fim = (*Area)->inicio - 1;
             
             while((*Area)->inicio <= (*Area)->fim && cont1 < auxArq->caracteres) {
-                for(int i = 0; i < TAM_GRANULO && cont1 < auxArq->caracteres; i++){
+                for(i = 0; i < TAM_GRANULO && cont1 < auxArq->caracteres; i++){
                     Memo[(*Area)->inicio][i] = texto[cont1];
                     cont1++;
                 }
@@ -104,10 +111,13 @@ void gravar(memoria Memo, ptnoSet *Area, ptnoArq *Arq, char nome[13], char texto
                 auxSet->fim++;
             }
         
-        } else {
+        } 
+        /*O else percorre a lista de espaços vazios e adiciona
+         * elemento na lista de setores*/
+        else {
             
-            auxSet2 = auxSet;
-            auxSet2 = auxSet2->prox;
+            percorre = percorre->prox;
+            percorre = auxSet;
             
             auxSet = malloc(sizeof (noSet));
             
@@ -119,14 +129,23 @@ void gravar(memoria Memo, ptnoSet *Area, ptnoArq *Arq, char nome[13], char texto
         
     }
     
+    /*Verifica memória cheia*/
     if (cont1 < auxArq->caracteres) {
         printf("A memória esta cheia!");
     }
     
-    auxSet2 = auxSet;
+    /*Adiciona final da seleção*/
+    percorre = auxSet;
+    percorre->prox = NULL;
     
-    if (!(*Arq)) {
+    if (!(*Arq)) { /* ADICIONA SE A LISTA ESTIVER VAZIA */
         *Arq = auxArq;
+    } else /*Adiciona se tiver outro elemento*/{
+        ptnoArq percorreArquivo = *Arq;
+        while (percorreArquivo->prox) {
+            percorreArquivo = percorreArquivo->prox;
+        }
+        percorreArquivo->prox = auxArq;
     }
     
 }
@@ -207,5 +226,3 @@ int main(void) {
     printf("\nFim da Execucao\n\n");
     return (EXIT_SUCCESS);
 }
-
-
