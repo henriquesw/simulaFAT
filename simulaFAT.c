@@ -74,7 +74,7 @@ void inicia(ptnoSet *Area, ptnoArq *Arq, memoria Memo) {
             Memo[i][j] = ' ';
 }
 
-void gravar(memoria *Memo, ptnoSet *Area, ptnoArq *Arq, char nome[13], char texto[TAM_MEMORIA * TAM_GRANULO]) {
+void gravar(memoria Memo, ptnoSet *Area, ptnoArq *Arq, char nome[13], char texto[TAM_MEMORIA * TAM_GRANULO]) {
     
     ptnoArq auxArq = malloc(sizeof (noArq));
     ptnoSet auxSet = malloc(sizeof (noSet));
@@ -87,7 +87,7 @@ void gravar(memoria *Memo, ptnoSet *Area, ptnoArq *Arq, char nome[13], char text
     
     int cont1 = 0;
     
-    while(Area != NULL && cont1 < auxArq->caracteres) {
+    while(Area && cont1 < auxArq->caracteres) {
         
         if((*Area)->inicio <= (*Area)->fim) {
             
@@ -95,8 +95,8 @@ void gravar(memoria *Memo, ptnoSet *Area, ptnoArq *Arq, char nome[13], char text
             auxSet->fim = (*Area)->inicio;
             
             while((*Area)->inicio <= (*Area)->fim && cont1 < auxArq->caracteres) {
-                for(int i = 0; i < 3; i++){
-                    *Memo[(*Area)->inicio][i] = texto[cont1];
+                for(int i = 0; i < TAM_GRANULO && cont1 < auxArq->caracteres; i++){
+                    Memo[(*Area)->inicio][i] = texto[cont1];
                     cont1++;
                 }
                 
@@ -106,7 +106,7 @@ void gravar(memoria *Memo, ptnoSet *Area, ptnoArq *Arq, char nome[13], char text
         
         } else {
             
-            auxSet2->prox = auxSet;
+            auxSet2 = auxSet;
             auxSet2 = auxSet2->prox;
             
             auxSet = malloc(sizeof (noSet));
@@ -123,7 +123,11 @@ void gravar(memoria *Memo, ptnoSet *Area, ptnoArq *Arq, char nome[13], char text
         printf("A memória esta cheia!");
     }
     
+    auxSet2 = auxSet;
     
+    if (!(*Arq)) {
+        *Arq = auxArq;
+    }
     
 }
 
@@ -170,7 +174,7 @@ int main(void) {
                 scanf("%s %s", nome, texto);
                 printf("nome = %s\n", nome);
                 printf("texto = %s\n", texto);
-                gravar(&Memo, &Area, &Arq, nome, texto);
+                gravar(Memo, &Area, &Arq, nome, texto);
                 /*
                  * Implementar as chamadas das funcoes pra GRAVAR arquivo
                  */
