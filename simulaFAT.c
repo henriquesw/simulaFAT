@@ -89,18 +89,18 @@ void gravar(memoria *Memo, ptnoSet *Area, ptnoArq *Arq, char nome[13], char text
     
     while(Area != NULL && cont1 < auxArq->caracteres) {
         
-        if(Area->inicio <= Area.fim) {
+        if((*Area)->inicio <= (*Area)->fim) {
             
-            auxSet->inicio = Area->inicio;
-            auxSet->fim = Area->inicio;
+            auxSet->inicio = (*Area)->inicio;
+            auxSet->fim = (*Area)->inicio;
             
-            while(Area->inicio <= Area->fim && cont1 < auxArq->caracteres) {
-                for(int i = 0; i < 3 && cont1 < auxArq->caracteres; i++){
-                    Memo[Area->inicio][i] = texto[cont1];
+            while((*Area)->inicio <= (*Area)->fim && cont1 < auxArq->caracteres) {
+                for(int i = 0; i < 3; i++){
+                    *Memo[(*Area)->inicio][i] = texto[cont1];
                     cont1++;
                 }
                 
-                Area->inicio++;
+                (*Area)->inicio++;
                 auxSet->fim++;
             }
         
@@ -111,17 +111,19 @@ void gravar(memoria *Memo, ptnoSet *Area, ptnoArq *Arq, char nome[13], char text
             
             auxSet = malloc(sizeof (noSet));
             
-            ptnoSet auxArea = Area->prox;
+            ptnoSet auxArea = (*Area)->prox;
             free(Area);
-            Area = auxArea;
+            (*Area) = auxArea;
             
         }
         
     }
     
-    if (cont1 != auxArq->caracteres) {
+    if (cont1 < auxArq->caracteres) {
         printf("A memória esta cheia!");
     }
+    
+    
     
 }
 
@@ -168,6 +170,7 @@ int main(void) {
                 scanf("%s %s", nome, texto);
                 printf("nome = %s\n", nome);
                 printf("texto = %s\n", texto);
+                gravar(&Memo, &Area, &Arq, nome, texto);
                 /*
                  * Implementar as chamadas das funcoes pra GRAVAR arquivo
                  */
