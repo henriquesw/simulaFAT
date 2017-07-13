@@ -89,6 +89,7 @@ int espacoLivre(ptnoSet Area) {
 void gravar(memoria Memo, ptnoSet *Area, ptnoArq *Arq, char nome[13], char texto[TAM_MEMORIA * TAM_GRANULO]) {
     
     ptnoArq auxArq = malloc(sizeof (noArq));
+    ptnoArq percorreArquivo = *Arq;
     ptnoSet auxSet = malloc(sizeof (noSet));
     ptnoSet percorre = auxSet;
     
@@ -101,7 +102,15 @@ void gravar(memoria Memo, ptnoSet *Area, ptnoArq *Arq, char nome[13], char texto
     int i;
     float setoresNecessarios = auxArq->caracteres / 3;
     
-    if (setoresNecessarios < espacoLivre(*Area)){
+    while (percorreArquivo && strcmp(percorreArquivo->nome, nome)) {
+        percorreArquivo = percorreArquivo->prox;
+    }
+    
+    if (setoresNecessarios > espacoLivre(*Area)){
+        printf("Memória insuficiente\n");
+    } else if (percorreArquivo) {
+        printf("Já possui arquivo com esse nome\n");
+    } else {
         /*O while verifica se tem espaço disponível na memória ou se 
          * já escreveu todo o arquivo*/
         while(Area && cont1 < auxArq->caracteres) {
@@ -147,14 +156,12 @@ void gravar(memoria Memo, ptnoSet *Area, ptnoArq *Arq, char nome[13], char texto
         if (!(*Arq)) { /* ADICIONA SE A LISTA ESTIVER VAZIA */
             *Arq = auxArq;
         } else /*Adiciona se tiver outro elemento*/{
-            ptnoArq percorreArquivo = *Arq;
+            percorreArquivo = *Arq;
             while (percorreArquivo->prox) {
                 percorreArquivo = percorreArquivo->prox;
             }
             percorreArquivo->prox = auxArq;
         }
-    } else {
-        printf("Memória insuficiente");
     }
     
 }
@@ -167,7 +174,7 @@ void apresentar (memoria Memo, ptnoArq Arq, char nome[13]) {
     }
     
     if (!Arq) {
-        printf("Não existe esse arquivo");
+        printf("Não existe esse arquivo\n");
     } else {
         ptnoSet auxSet = Arq->setores;
         while (auxSet) {
@@ -179,6 +186,7 @@ void apresentar (memoria Memo, ptnoArq Arq, char nome[13]) {
             }
             auxSet = auxSet->prox;
         }
+        printf("\n");
     }
     
 }
@@ -260,4 +268,3 @@ int main(void) {
     printf("\nFim da Execucao\n\n");
     return (EXIT_SUCCESS);
 }
-
