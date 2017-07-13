@@ -1,2 +1,41 @@
 Português
 
+Trabalho da disciplina estrutura de dados I
+
+A proposta de trabalho é fazer um simulador para padrão de 
+arquivoarquivo FAT na memória.
+
+Para o trabalho foi utilizado um código base disponibilizado 
+pelopelo professor da disciplina, o qual foi alterado com a 
+implementação das funções gravar, apresentar e deletar.
+
+English
+
+Work of data structure I subject
+
+The work proposal is to code a simulator of memory FAT file 
+pattern.
+
+We use a base code provided by the professor. The code was 
+charged and it was implemented three functions: gravar, 
+apresentar and deletar.
+
+Help
+
+G <file.txt> <text>
+Save de file in the memory.
+
+D <file.txt>
+Delete the file.
+
+A <file.txt>
+Show the file content.
+
+M
+Show the memory
+
+H
+Show the commands list.
+
+F
+Finish.
