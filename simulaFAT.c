@@ -1,7 +1,3 @@
-/*-------------------------------------------------
- * Simulador de FAT - File Allocation Table
- * Luiz Eduardo da Silva
- *-------------------------------------------------*/
 #include <stdio.h>
 #include <stdlib.h>
 #include <ctype.h>
@@ -100,8 +96,12 @@ void gravar(memoria Memo, ptnoSet *Area, ptnoArq *Arq, char nome[13], char texto
     
     int cont1 = 0;
     int i;
-    float setoresNecessarios = auxArq->caracteres / 3;
-    
+    int setoresNecessarios = (int) (auxArq->caracteres / TAM_GRANULO);
+    /*Arredonda total de espacos*/
+    if ((auxArq->caracteres % TAM_GRANULO) != 0) {
+    	setoresNecessarios++;
+    }
+    /*procura arquivo na lista*/
     while (percorreArquivo && strcmp(percorreArquivo->nome, nome)) {
         percorreArquivo = percorreArquivo->prox;
     }
@@ -171,7 +171,7 @@ void gravar(memoria Memo, ptnoSet *Area, ptnoArq *Arq, char nome[13], char texto
 
 void apresentar (memoria Memo, ptnoArq Arq, char nome[13]) {
     int i, j, posicao = 0;
-    
+    /*Procura o arquivo na lista*/
     while(Arq && strcmp(Arq->nome, nome)){
         Arq = Arq->prox;
     }
@@ -179,8 +179,10 @@ void apresentar (memoria Memo, ptnoArq Arq, char nome[13]) {
     if (!Arq) {
         printf("Não existe esse arquivo\n");
     } else {
+    	/*Percorre toda a lista de setores*/
         ptnoSet auxSet = Arq->setores;
         while (auxSet) {
+        	/*Le a memoria e imprime na tela*/
             for (i = auxSet->inicio; i <= auxSet->fim; i++) {
                 for (j = 0; j < TAM_GRANULO && posicao < Arq->caracteres; j++) {
                     printf("%c", Memo[i][j]);
@@ -195,6 +197,7 @@ void apresentar (memoria Memo, ptnoArq Arq, char nome[13]) {
 }
 
 void organizaArea (ptnoSet Area) {
+	/*Responsavel por unir setores na area livre, exempro inicio 4 e fim 5 proxima area inicio 6 fim 7, ira ficar um setor de inicio 4 e fim 7*/
     ptnoSet aux;
     while (Area) {
         aux = Area->prox;
@@ -211,10 +214,11 @@ void organizaArea (ptnoSet Area) {
 }
 
 void deletar (memoria Memo, ptnoArq *Arq, ptnoSet *Area, char nome[13]) {
+	
     int i, j, posicao = 0;
     ptnoArq anteriorArq = NULL, auxArq = (*Arq);
     ptnoSet anteriorArea = NULL, auxArea = (*Area);
-    
+    /*procura o arquivo na lista*/
     while(auxArq && strcmp(auxArq->nome, nome)){
         anteriorArq = auxArq;
         auxArq = auxArq->prox;
@@ -223,16 +227,17 @@ void deletar (memoria Memo, ptnoArq *Arq, ptnoSet *Area, char nome[13]) {
     if (!auxArq) {
         printf("Não existe esse arquivo\n");
     } else {
-        
+        /*Percorre os setores do arquivo*/
         ptnoSet auxSet = auxArq->setores;
-        
         while (auxSet) {
+        	/*Limpa a memoria para melhor visualizacao*/
             for (i = auxSet->inicio; i <= auxSet->fim; i++) {
-		for (j = 0; j < TAM_GRANULO && posicao <= auxArq->caracteres; j++) {
+				for (j = 0; j < TAM_GRANULO && posicao <= auxArq->caracteres; j++) {
                     Memo[i][j] = ' ';
                     posicao++;
                 }
 	    }
+	    /* Passa a area que era do arquivo para a memoria, assim n precisa desalocar*/
             auxArq->setores = auxSet->prox;
             while (auxArea && auxSet->fim > auxArea->inicio) {
                 anteriorArea = auxArea;
@@ -251,6 +256,7 @@ void deletar (memoria Memo, ptnoArq *Arq, ptnoSet *Area, char nome[13]) {
             auxArea = (*Area);
             auxSet = auxArq->setores;
         }
+        /*desaloca o arquivo da memoria*/
         if (!anteriorArq) {
             (*Arq) = (*Arq)->prox;
         } else if(auxArq->prox) {
