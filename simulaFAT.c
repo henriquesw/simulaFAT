@@ -96,7 +96,7 @@ void gravar(memoria Memo, ptnoSet *Area, ptnoArq *Arq, char nome[13], char texto
     strcpy(auxArq->nome, nome);
     auxArq->caracteres = strlen(texto);
     auxArq->prox = NULL;
-    auxArq->setores = percorre;
+    auxArq->setores = auxSet;
     
     int cont1 = 0;
     int i;
@@ -131,26 +131,29 @@ void gravar(memoria Memo, ptnoSet *Area, ptnoArq *Arq, char nome[13], char texto
                     auxSet->fim++;
                 }
 
-            } 
-            /*O else percorre a lista de espaços vazios e adiciona
-             * elemento na lista de setores*/
-            else {
-
-                percorre = percorre->prox;
-                percorre = auxSet;
+            } else /*O else percorre a lista de espaços vazios e adiciona elemento na lista de setores*/ 
+                {
 
                 auxSet = malloc(sizeof (noSet));
+                percorre->prox = auxSet;
+                percorre = percorre->prox;
 
                 ptnoSet auxArea = (*Area)->prox;
-                free(Area);
+                free((*Area));
                 (*Area) = auxArea;
 
             }
-
+        }
+        
+        if ((*Area)->inicio > (*Area)->fim) {
+            ptnoSet auxArea = (*Area)->prox;
+            free((*Area));
+            (*Area) = auxArea;
         }
 
         /*Adiciona final da seleção*/
-        percorre = auxSet;
+        percorre->prox = auxSet;
+        percorre = percorre->prox;
         percorre->prox = NULL;
 
         if (!(*Arq)) { /* ADICIONA SE A LISTA ESTIVER VAZIA */
@@ -189,6 +192,75 @@ void apresentar (memoria Memo, ptnoArq Arq, char nome[13]) {
         printf("\n");
     }
     
+}
+
+void organizaArea (ptnoSet Area) {
+    ptnoSet aux;
+    while (Area) {
+        aux = Area->prox;
+        if (aux) {
+            if ((Area->fim + 1) == aux->inicio) {
+                Area->fim = aux->fim;
+                Area->prox = aux->prox;
+                free(aux);
+            }
+        }
+            Area = Area->prox;
+    }
+    
+}
+
+void deletar (memoria Memo, ptnoArq *Arq, ptnoSet *Area, char nome[13]) {
+    int i, j, posicao = 0;
+    ptnoArq anteriorArq = NULL, auxArq = (*Arq);
+    ptnoSet anteriorArea = NULL, auxArea = (*Area);
+    
+    while(auxArq && strcmp(auxArq->nome, nome)){
+        anteriorArq = auxArq;
+        auxArq = auxArq->prox;
+    }
+    
+    if (!auxArq) {
+        printf("Não existe esse arquivo\n");
+    } else {
+        
+        ptnoSet auxSet = auxArq->setores;
+        
+        while (auxSet) {
+            for (i = auxSet->inicio; i <= auxSet->fim; i++) {
+		for (j = 0; j < TAM_GRANULO && posicao <= auxArq->caracteres; j++) {
+                    Memo[i][j] = ' ';
+                    posicao++;
+                }
+	    }
+            auxArq->setores = auxSet->prox;
+            while (auxArea && auxSet->fim > auxArea->inicio) {
+                anteriorArea = auxArea;
+                auxArea = auxArea->prox;
+            }
+            if (!anteriorArea) {
+                (*Area) = auxSet;
+            } else {
+                anteriorArea->prox = auxSet;
+            }
+            if (!auxArea) {
+                auxSet->prox = NULL;
+            } else {
+                auxSet->prox = auxArea;
+            }
+            auxArea = (*Area);
+            auxSet = auxArq->setores;
+        }
+        if (!anteriorArq) {
+            (*Arq) = (*Arq)->prox;
+        } else if(auxArq->prox) {
+            anteriorArq->prox = auxArq->prox;
+        } else {
+            anteriorArq->prox = NULL;
+        }
+        auxArq = NULL;
+        free(auxArq);
+    }
 }
 
 /*---------------------------------------------
@@ -242,6 +314,8 @@ int main(void) {
             case 'D':
                 scanf("%s", nome);
                 printf("nome = %s\n", nome);
+                deletar(Memo, &Arq, &Area, nome);
+                organizaArea(Area);
                 /*
                  * Implementar as chamadas das funcoes pra DELETAR arquivo
                  */
