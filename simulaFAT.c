@@ -1,3 +1,13 @@
+/*+-------------------------------------------------------------+
+ *|         UNIFAL – Universidade Federal de Alfenas.           |
+ *| BACHARELADO EM CIENCIA DA COMPUTACAO.                       |
+ *| Trabalho..: SIMULACAO DE SISTEMA DE ARQUIVOS FAT            |
+ *| Disciplina: Estrutura de Dados I                            |
+ *| Professor.: Luiz Eduardo da Silva                           |
+ *| Aluno(s)..: Henrique dos Santos Wisniewski                  |
+ *|             Vinicius Henrique dos Santos                    |
+ *| Data......: 17/07/2017                                      |
+ *+-------------------------------------------------------------+*/
 #include <stdio.h>
 #include <stdlib.h>
 #include <ctype.h>
@@ -98,13 +108,12 @@ void gravar(memoria Memo, ptnoSet *Area, ptnoArq *Arq, char nome[13], char texto
     int i;
     int setoresNecessarios = (int) (auxArq->caracteres / TAM_GRANULO);
     /*Arredonda total de espacos*/
-    if ((auxArq->caracteres % TAM_GRANULO) != 0) {
+    if ((auxArq->caracteres % TAM_GRANULO) != 0)
     	setoresNecessarios++;
-    }
+    
     /*procura arquivo na lista*/
-    while (percorreArquivo && strcmp(percorreArquivo->nome, nome)) {
+    while (percorreArquivo && strcmp(percorreArquivo->nome, nome))
         percorreArquivo = percorreArquivo->prox;
-    }
     
     if (setoresNecessarios > espacoLivre(*Area)){
         printf("Memória insuficiente\n");
@@ -131,9 +140,9 @@ void gravar(memoria Memo, ptnoSet *Area, ptnoArq *Arq, char nome[13], char texto
                     auxSet->fim++;
                 }
 
-            } else /*O else percorre a lista de espaços vazios e adiciona elemento na lista de setores*/ 
-                {
-
+            } else {
+                /*O else percorre a lista de espaços vazios e adiciona elemento na lista de setores*/
+                
                 auxSet = malloc(sizeof (noSet));
                 percorre->prox = auxSet;
                 percorre = percorre->prox;
@@ -158,11 +167,10 @@ void gravar(memoria Memo, ptnoSet *Area, ptnoArq *Arq, char nome[13], char texto
 
         if (!(*Arq)) { /* ADICIONA SE A LISTA ESTIVER VAZIA */
             *Arq = auxArq;
-        } else /*Adiciona se tiver outro elemento*/{
+        } else { /*Adiciona se tiver outro elemento*/
             percorreArquivo = *Arq;
-            while (percorreArquivo->prox) {
+            while (percorreArquivo->prox)
                 percorreArquivo = percorreArquivo->prox;
-            }
             percorreArquivo->prox = auxArq;
         }
     }
@@ -172,9 +180,8 @@ void gravar(memoria Memo, ptnoSet *Area, ptnoArq *Arq, char nome[13], char texto
 void apresentar (memoria Memo, ptnoArq Arq, char nome[13]) {
     int i, j, posicao = 0;
     /*Procura o arquivo na lista*/
-    while(Arq && strcmp(Arq->nome, nome)){
+    while(Arq && strcmp(Arq->nome, nome))
         Arq = Arq->prox;
-    }
     
     if (!Arq) {
         printf("Não existe esse arquivo\n");
@@ -208,7 +215,7 @@ void organizaArea (ptnoSet Area) {
                 free(aux);
             }
         }
-            Area = Area->prox;
+        Area = Area->prox;
     }
     
 }
@@ -232,7 +239,7 @@ void deletar (memoria Memo, ptnoArq *Arq, ptnoSet *Area, char nome[13]) {
         while (auxSet) {
         	/*Limpa a memoria para melhor visualizacao*/
             for (i = auxSet->inicio; i <= auxSet->fim; i++) {
-				for (j = 0; j < TAM_GRANULO && posicao <= auxArq->caracteres; j++) {
+                for (j = 0; j < TAM_GRANULO && posicao <= auxArq->caracteres; j++) {
                     Memo[i][j] = ' ';
                     posicao++;
                 }
@@ -243,35 +250,32 @@ void deletar (memoria Memo, ptnoArq *Arq, ptnoSet *Area, char nome[13]) {
                 anteriorArea = auxArea;
                 auxArea = auxArea->prox;
             }
-            if (!anteriorArea) {
+            
+            if (!anteriorArea)
                 (*Area) = auxSet;
-            } else {
+            else
                 anteriorArea->prox = auxSet;
-            }
-            if (!auxArea) {
+            
+            if (!auxArea)
                 auxSet->prox = NULL;
-            } else {
+            else
                 auxSet->prox = auxArea;
-            }
+
             auxArea = (*Area);
             auxSet = auxArq->setores;
         }
         /*desaloca o arquivo da memoria*/
-        if (!anteriorArq) {
+        if (!anteriorArq)
             (*Arq) = (*Arq)->prox;
-        } else if(auxArq->prox) {
+        else if(auxArq->prox)
             anteriorArq->prox = auxArq->prox;
-        } else {
+        else
             anteriorArq->prox = NULL;
-        }
+
         auxArq = NULL;
         free(auxArq);
     }
 }
-
-/*---------------------------------------------
- * Implementar as rotinas para simulacao da FAT
- *---------------------------------------------*/
 
 void ajuda() {
     printf("\nCOMANDOS\n");
@@ -312,27 +316,21 @@ int main(void) {
                 scanf("%s %s", nome, texto);
                 printf("nome = %s\n", nome);
                 printf("texto = %s\n", texto);
+                //funçao gravar
                 gravar(Memo, &Area, &Arq, nome, texto);
-                /*
-                 * Implementar as chamadas das funcoes pra GRAVAR arquivo
-                 */
                 break;
             case 'D':
                 scanf("%s", nome);
                 printf("nome = %s\n", nome);
+                //função deletar e para organizar memoria
                 deletar(Memo, &Arq, &Area, nome);
                 organizaArea(Area);
-                /*
-                 * Implementar as chamadas das funcoes pra DELETAR arquivo
-                 */
                 break;
             case 'A':
                 scanf("%s", nome);
                 printf("nome = %s\n", nome);
+                //função apresentar
                 apresentar(Memo, Arq, nome);
-                /*
-                 * Implementar as chamadas das funcoes pra APRESENTAR arquivo
-                 */
                 break;
             case 'M':
                 mostraSetores(Area, "Area");
