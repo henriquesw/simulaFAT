@@ -80,7 +80,7 @@ void inicia(ptnoSet *Area, ptnoArq *Arq, memoria Memo) {
 int espacoLivre(ptnoSet Area) {
     int total = 0;
     while (Area) {
-        total = total + (Area->fim - Area->inicio);
+        total = total + (Area->fim - Area->inicio) + 1;
         Area = Area->prox;
     }
     return total;
