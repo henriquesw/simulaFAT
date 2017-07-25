@@ -203,23 +203,6 @@ void apresentar (memoria Memo, ptnoArq Arq, char nome[13]) {
     
 }
 
-void organizaArea (ptnoSet Area) {
-	/*Responsavel por unir setores na area livre, exempro inicio 4 e fim 5 proxima area inicio 6 fim 7, ira ficar um setor de inicio 4 e fim 7*/
-    ptnoSet aux;
-    while (Area) {
-        aux = Area->prox;
-        if (aux) {
-            if ((Area->fim + 1) == aux->inicio) {
-                Area->fim = aux->fim;
-                Area->prox = aux->prox;
-                free(aux);
-            }
-        }
-        Area = Area->prox;
-    }
-    
-}
-
 void deletar (memoria Memo, ptnoArq *Arq, ptnoSet *Area, char nome[13]) {
 	
     int i, j, posicao = 0;
@@ -253,15 +236,26 @@ void deletar (memoria Memo, ptnoArq *Arq, ptnoSet *Area, char nome[13]) {
             
             if (!anteriorArea)
                 (*Area) = auxSet;
-            else
+            else {
                 anteriorArea->prox = auxSet;
+                if ((anteriorArea->fim + 1) == auxSet->inicio) {
+                    anteriorArea->fim = auxSet->fim;
+                    free(auxSet);
+                    auxSet = anteriorArea;
+                }
+            }
             
             if (!auxArea)
                 auxSet->prox = NULL;
-            else
+            else {
                 auxSet->prox = auxArea;
+                if ((auxSet->fim + 1) == auxArea->inicio) {
+                    auxSet->fim = auxArea->fim;
+                    auxSet->prox = auxArea->prox;
+                    free(auxArea);
+                }
+            }
 
-            auxArea = (*Area);
             auxSet = auxArq->setores;
         }
         /*desaloca o arquivo da memoria*/
@@ -324,7 +318,6 @@ int main(void) {
                 printf("nome = %s\n", nome);
                 //função deletar e para organizar memoria
                 deletar(Memo, &Arq, &Area, nome);
-                organizaArea(Area);
                 break;
             case 'A':
                 scanf("%s", nome);
